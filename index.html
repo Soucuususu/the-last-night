@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>THE LAST NIGHT</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#050807;color:#e5eee7;font-family:monospace;overflow:hidden;touch-action:none}
+canvas{display:block;width:100vw;height:100dvh}
+#hud{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none;font-size:13px}
+.panel{background:#07100ddd;padding:10px;border:1px solid #526357}
+#msg{position:fixed;top:65px;left:0;right:0;text-align:center;font-size:12px;color:#d1ded4;pointer-events:none}
+#menu{position:fixed;inset:0;background:#030605ed;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:100%;max-width:380px;text-align:center;border:1px solid #4b5e50;background:#0b110e;padding:25px}
+h1{font-size:36px;letter-spacing:4px}
+p{color:#aab9ad;font-size:13px;line-height:1.7}
+button{background:#19291e;color:white;border:1px solid #728778;padding:13px;font-family:monospace}
+#start{width:100%;font-weight:bold}
+#controls{position:fixed;bottom:20px;left:15px;right:15px;display:flex;justify-content:space-between;align-items:end}
+.pad{display:grid;grid-template-columns:44px 44px 44px;grid-template-rows:44px 44px 44px;gap:4px}
+.pad button{padding:0;background:#142019cc;font-size:19px}
+.up{grid-column:2}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+.actions{display:flex;flex-direction:column;gap:8px}
+.actions button{width:80px;font-size:11px;background:#142019dd}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="panel">PÁGINAS <span id="count">0</span>/3</div>
+ <div class="panel">BATERIA <span id="bat">100</span>%</div>
+</div>
+<div id="msg">encontre as páginas e escape</div>
+<div id="controls" class="hidden">
+ <div class="pad">
+  <button class="up" data-d="up">▲</button>
+  <button class="left" data-d="left">◀</button>
+  <button class="down" data-d="down">▼</button>
+  <button class="right" data-d="right">▶</button>
+ </div>
+ <div class="actions">
+  <button id="light">LANTERNA</button>
+  <button id="sprint">CORRER</button>
+ </div>
+</div>
+<div id="menu">
+ <div class="card">
+  <p>UMA EXPERIÊNCIA DE TERROR</p>
+  <h1>THE LAST<br>NIGHT</h1>
+  <p>Você está perdido em uma floresta.<br>Encontre as 3 páginas. Evite a criatura.<br>Encontre a saída e sobreviva.</p>
+  <button id="start">ENTRAR NA FLORESTA</button>
+ </div>
+</div>
+<script>
+const c=document.getElementById("game"),ctx=c.getContext("2d");
+const menu=document.getElementById("menu"),controls=document.getElementById("controls");
+const msg=document.getElementById("msg");
+let W,H,camX=0,camY=0,active=false,last=0,keys={},touch={},sprint=false;
+const world={w:1800,h:1400};
+let p,m,pages,trees,battery,light,found,toast=0;
+
+function resize(){
+ W=innerWidth;H=innerHeight;
+ c.width=W*devicePixelRatio;c.height=H*devicePixelRatio;
+ ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+}
+addEventListener("resize",resize);resize();
+const rand=(a,b)=>a+Math.random()*(b-a);
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+function setup(){
+ p={x:900,y:1000,r:10};
+ m={x:500,y:350,r:15,speed:42};
+ battery=100;light=true;found=0;
+ pages=[];trees=[];
+ for(let i=0;i<3;i++){
+  let q;
+  do{q={x:rand(100,1700),y:rand(100,1300),got:false}}
+  while(distance(q,p)<300||pages.some(a=>distance(a,q)<220));
+  pages.push(q);
+ }
+ for(let i=0;i<180;i++){
+  let t={x:rand(30,1770),y:rand(30,1370),r:rand(13,26)};
+  if(distance(t,p)>90)trees.push(t);
+ }
+ document.getElementById("count").textContent="0";
+ document.getElementById("bat").textContent="100";
+ msg.textContent="encontre as páginas e escape";
+}
+
+document.getElementById("start").onclick=()=>{
+ setup();menu.classList.add("hidden");
+ controls.classList.remove("hidden");
+ active=true;last=performance.now();
+ requestAnimationFrame(loop);
+};
+
+function end(win){
+ active=false;controls.classList.add("hidden");
+ menu.classList.remove("hidden");
+ menu.querySelector(".card").innerHTML=`
+ <p>${win?"VOCÊ SOBREVIVEU":"VOCÊ FOI ENCONTRADO"}</p>
+ <h1>${win?"FUGIU!":"FIM DE JOGO"}</h1>
+ <p>${win?"Você escapou da floresta.":"A criatura alcançou você. Tente novamente."}</p>
+ <button id="again">JOGAR NOVAMENTE</button>`;
+ document.getElementById("again").onclick=()=>{
+  menu.querySelector(".card").innerHTML=`
+  <p>UMA EXPERIÊNCIA DE TERROR</p><h1>THE LAST<br>NIGHT</h1>
+  <p>Encontre as 3 páginas, evite a criatura e escape.</p>
+  <button id="start">ENTRAR NA FLORESTA</button>`;
+  document.getElementById("start").onclick=()=>{
+   setup();menu.classList.add("hidden");
+   controls.classList.remove("hidden");
+   active=true;last=performance.now();requestAnimationFrame(loop);
+  };
+ };
+}
+
+document.querySelectorAll("[data-d]").forEach(b=>{
+ const d=b.dataset.d;
+ b.addEventListener("pointerdown",e=>{
+  e.preventDefault();b.setPointerCapture(e.pointerId);touch[d]=true;
+ });
+ ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>
+  b.addEventListener(ev,()=>touch[d]=false));
+});
+document.getElementById("light").onclick=()=>{
+ if(battery>0)light=!light;
+};
+document.getElementById("sprint").onpointerdown=()=>sprint=true;
+["pointerup","pointercancel","pointerleave"].forEach(ev=>
+ document.getElementById("sprint").addEventListener(ev,()=>sprint=false));
+addEventListener("keydown",e=>{
+ keys[e.key.toLowerCase()]=true;
+ if(e.key.toLowerCase()==="l"&&battery>0)light=!light;
+ if(e.key==="Shift")sprint=true;
+});
+addEventListener("keyup",e=>{
+ keys[e.key.toLowerCase()]=false;
+ if(e.key==="Shift")sprint=false;
+});
+
+function down(...a){return a.some(k=>keys[k])}
+function update(dt){
+ let dx=Number(down("d","arrowright")||touch.right)-
+        Number(down("a","arrowleft")||touch.left);
+ let dy=Number(down("s","arrowdown")||touch.down)-
+        Number(down("w","arrowup")||touch.up);
+ const len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;
+ const fast=sprint&&battery>0;
+ const speed=fast?205:135;
+ p.x=clamp(p.x+dx*speed*dt,15,1785);
+ p.y=clamp(p.y+dy*speed*dt,15,1385);
+
+ if(light&&battery>0)battery=Math.max(0,battery-dt*1.6);
+ if(fast)battery=Math.max(0,battery-dt*.7);
+ if(battery<=0)light=false;
+ document.getElementById("bat").textContent=Math.ceil(battery);
+
+ let dxm=p.x-m.x,dym=p.y-m.y;
+ let d=Math.hypot(dxm,dym)||1;
+ m.x+=dxm/d*(m.speed+found*9)*dt;
+ m.y+=dym/d*(m.speed+found*9)*dt;
+
+ pages.forEach(q=>{
+  if(!q.got&&distance(p,q)<27){
+   q.got=true;found++;
+   document.getElementById("count").textContent=found;
+   msg.textContent=found===3?"AS PÁGINAS ESTÃO COMPLETAS! VÁ PARA A SAÍDA AO SUL":"VOCÊ ENCONTROU UMA PÁGINA...";
+   toast=3;
+  }
+ });
+ if(toast>0)toast-=dt;
+ else msg.textContent=found===3?"FUJA PELA SAÍDA AO SUL":"encontre as páginas e escape";
+
+ if(found===3&&p.y>1340&&Math.abs(p.x-900)<100){end(true);return}
+ if(distance(p,m)<23){end(false)}
+}
+
+function draw(){
+ camX=clamp(p.x-W/2,0,world.w-W);
+ camY=clamp(p.y-H/2,0,world.h-H);
+ ctx.fillStyle="#101a14";ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.translate(-camX,-camY);
+
+ for(let i=0;i<300;i++){
+  let x=(i*137)%world.w,y=(i*239)%world.h;
+  ctx.fillStyle=i%2?"#142019":"#18241a";
+  ctx.fillRect(x,y,7,4);
+ }
+ // Saída
+ ctx.fillStyle="#050706";ctx.fillRect(825,1350,150,50);
+ ctx.strokeStyle="#879487";ctx.strokeRect(825,1350,150,50);
+ ctx.fillStyle="#e2e9df";ctx.font="12px monospace";ctx.textAlign="center";
+ ctx.fillText(found===3?"SAÍDA":"BLOQUEADO",900,1338);
+
+ trees.forEach(t=>{
+  ctx.fillStyle="#050806";ctx.beginPath();
+  ctx.ellipse(t.x+4,t.y+8,t.r,t.r*.7,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#263b2b";ctx.beginPath();
+  ctx.arc(t.x,t.y,t.r,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#17261b";ctx.beginPath();
+  ctx.arc(t.x-4,t.y-5,t.r*.65,0,Math.PI*2);ctx.fill();
+ });
+ pages.forEach(q=>{
+  if(q.got)return;
+  ctx.fillStyle="#e8e2bd";ctx.fillRect(q.x-7,q.y-10,14,20);
+  ctx.fillStyle="#656b5b";ctx.fillRect(q.x-4,q.y-4,8,2);
+  ctx.fillRect(q.x-4,q.y+1,6,2);
+ });
+ // Monstro
+ ctx.fillStyle="#020303";ctx.beginPath();
+ ctx.ellipse(m.x,m.y,15,23,0,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(m.x,m.y-19,10,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#d7f5dc";ctx.fillRect(m.x-6,m.y-21,3,3);
+ ctx.fillRect(m.x+3,m.y-21,3,3);
+ // Jogador
+ ctx.fillStyle="#c1d4c4";ctx.beginPath();
+ ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+
+ const px=p.x-camX,py=p.y-camY;
+ ctx.fillStyle="rgba(0,0,0,.96)";ctx.fillRect(0,0,W,H);
+ if(light&&battery>0){
+  ctx.globalCompositeOperation="destination-out";
+  const g=ctx.createRadialGradient(px,py,10,px,py,Math.max(W,H)*.53);
+  g.addColorStop(0,"rgba(0,0,0,1)");
+  g.addColorStop(.35,"rgba(0,0,0,.85)");
+  g.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.fillStyle=g;ctx.beginPath();
+  ctx.arc(px,py,Math.max(W,H)*.53,0,Math.PI*2);ctx.fill();
+  ctx.globalCompositeOperation="source-over";
+ }else{
+  ctx.globalCompositeOperation="destination-out";
+  ctx.beginPath();ctx.arc(px,py,32,0,Math.PI*2);ctx.fill();
+  ctx.globalCompositeOperation="source-over";
+ }
+ const d=distance(p,m);
+ if(d<260){
+  ctx.fillStyle=`rgba(120,0,0,${(1-d/260)*.25})`;
+  ctx.fillRect(0,0,W,H);
+ }
+ const v=ctx.createRadialGradient(W/2,H/2,40,W/2,H/2,Math.max(W,H)*.7);
+ v.addColorStop(0,"transparent");v.addColorStop(1,"rgba(0,0,0,.65)");
+ ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+}
+function loop(now){
+ if(!active)return;
+ const dt=Math.min((now-last)/1000,.04);last=now;
+ update(dt);
+ if(active){draw();requestAnimationFrame(loop)}
+}
+setup();
+</script>
+</body>
+  </html>
+  
