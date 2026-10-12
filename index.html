@@ -4,831 +4,874 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#050807">
+<meta name="theme-color" content="#050609">
 <title>THE LAST NIGHT</title>
+
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050807;color:#eee;font-family:Arial,sans-serif;touch-action:none}
-canvas{display:block;width:100%;height:100%}
-button{font-family:inherit;cursor:pointer;touch-action:manipulation}
+body{margin:0;background:#050609;color:#eee;font-family:Arial,sans-serif;overflow:hidden;touch-action:none}
+canvas{display:block;width:100vw;height:100dvh}
 #hud{position:fixed;inset:0;pointer-events:none}
-#top{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px}
-.panel{background:#070c0be8;border:1px solid #71807555;border-radius:8px;padding:9px 11px;backdrop-filter:blur(5px)}
-.small{font-size:9px;letter-spacing:1.5px;color:#aab5ac}
-.value{font-size:13px;font-weight:bold;margin-top:5px}
-.bar{height:5px;width:clamp(75px,24vw,145px);background:#28302b;margin-top:6px;border-radius:8px;overflow:hidden}
-.fill{height:100%;width:100%;background:#c6d5c7}
-#objective{position:absolute;top:100px;left:50%;transform:translateX(-50%);width:max-content;max-width:90%;text-align:center;font-size:10px;letter-spacing:1px;color:#e0e6df;text-shadow:0 2px 8px black}
-#message{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);font-size:12px;letter-spacing:2px;text-align:center;color:#fff;text-shadow:0 0 12px #c9dfca;opacity:0;transition:opacity .2s;width:90%}
-#bottomHint{position:absolute;left:10px;bottom:12px;max-width:135px;font-size:9px;line-height:1.7;letter-spacing:.6px;color:#c5cec6;background:#060a09c9;padding:8px;border-radius:6px}
-#controls{position:absolute;left:12px;bottom:15px;display:grid;grid-template-columns:repeat(3,43px);grid-template-rows:repeat(2,43px);gap:5px;pointer-events:auto}
-.ctrl{display:flex;align-items:center;justify-content:center;background:#111a16e8;border:1px solid #aebcaf77;color:white;border-radius:10px;font-size:18px;user-select:none;-webkit-user-select:none;touch-action:none}
-.ctrl.active,.ctrl:active{background:#52665a}
-#actions{position:absolute;right:12px;bottom:15px;display:flex;flex-direction:column;gap:6px;pointer-events:auto}
-.action{min-width:105px;padding:12px 8px;background:#101915ed;border:1px solid #aebcaf77;color:#eee;border-radius:9px;font-size:10px;letter-spacing:.7px}
-.action:active{background:#405047}
-#overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#17221c77,#020403f5 75%);padding:18px}
-#card{width:min(440px,95vw);text-align:center;padding:27px 22px;border:1px solid #64726777;background:#060a09f5;box-shadow:0 0 55px #000;border-radius:5px}
-#logo{font-size:clamp(29px,8vw,48px);font-weight:900;letter-spacing:4px;color:#e4e9e3;text-shadow:0 0 24px #9cb29c55}
-#subtitle{font-size:9px;letter-spacing:3px;color:#8a9b8d;margin:12px 0 22px}
-#story{font-size:12px;line-height:1.9;color:#b8c2b9;margin-bottom:22px}
-#start{width:100%;padding:15px 10px;border:0;border-radius:3px;background:#d8e2d8;color:#111712;font-weight:bold;letter-spacing:2px}
-#instructions{font-size:9px;color:#849187;line-height:1.9;margin-top:15px}
-.hidden{display:none!important}
-@media(min-width:800px){
- #controls{left:20px;bottom:20px;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px)}
- #actions{right:20px;bottom:20px}
- #bottomHint{left:20px;bottom:140px}
-}
-@media(max-height:480px){
- #top{top:5px}
- .panel{padding:6px 8px}
- #objective{top:75px}
- #controls{bottom:8px;grid-template-columns:repeat(3,36px);grid-template-rows:repeat(2,36px)}
- #actions{bottom:8px}
- .action{padding:9px 7px}
- #bottomHint{display:none}
-}
+.panel{background:#090b10dc;border:1px solid #ffffff1c;border-radius:10px;padding:10px 13px;backdrop-filter:blur(5px)}
+#brand{position:absolute;top:14px;left:14px;font-size:17px;font-weight:900;letter-spacing:3px}
+#objective{position:absolute;top:59px;left:14px;font-size:12px;color:#b6b6bd}
+#stats{position:absolute;top:14px;right:12px;width:150px;font-size:11px}
+.stat{margin:7px 0}
+.stathead{display:flex;justify-content:space-between;margin-bottom:4px;color:#c5c5cc}
+.track{height:6px;background:#272930;border-radius:8px;overflow:hidden}
+.fill{height:100%;width:100%;transition:width .1s}
+#staminaFill{background:#e7e7e7}
+#batteryFill{background:#d4c16b}
+#healthFill{background:#a72f36}
+#pages{margin-top:9px;color:#ddd}
+#hint{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);font-size:13px;color:#ddd;text-shadow:0 2px 5px #000;text-align:center}
+#message{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:85%;text-align:center;font-size:13px;color:#eee;text-shadow:0 2px 8px #000}
+#warning{position:absolute;top:39%;left:50%;transform:translateX(-50%);font-weight:900;letter-spacing:4px;font-size:clamp(18px,4vw,32px);color:#b82b35;opacity:0}
+#interact{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;color:#bbb}
+#controls{position:absolute;inset:0}
+.pad{position:absolute;bottom:24px;left:17px;width:142px;height:130px;pointer-events:auto}
+.ctrl{position:absolute;width:43px;height:43px;border-radius:10px;border:1px solid #ffffff38;background:#11151bc9;color:white;font-size:20px;touch-action:none;user-select:none}
+#up{left:49px;top:0}
+#left{left:0;top:45px}
+#down{left:49px;top:45px}
+#right{left:98px;top:45px}
+.actions{position:absolute;bottom:25px;right:16px;display:grid;grid-template-columns:repeat(2,58px);gap:8px;pointer-events:auto}
+.action{height:54px;border-radius:50%;background:#11151bd9;border:1px solid #ffffff35;color:white;font-size:10px;font-weight:bold;touch-action:none;user-select:none}
+#runBtn{border-color:#c8c8c86b}
+#start,#endScreen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse,#141821f5,#020306 80%);z-index:10;text-align:center;padding:22px}
+#endScreen{display:none}
+.menu{max-width:420px}
+h1{font-size:clamp(36px,9vw,60px);letter-spacing:5px;margin:0 0 12px}
+.subtitle{color:#999;font-size:13px;line-height:1.6}
+.play{margin-top:24px;padding:15px 32px;background:#a21f2b;color:white;border:0;border-radius:5px;font-weight:900;letter-spacing:2px;font-size:14px}
+.small{color:#777;font-size:11px;line-height:1.7;margin-top:20px}
+#soundBtn{position:absolute;top:120px;right:12px;pointer-events:auto;border:1px solid #ffffff30;background:#10131ac9;color:#ddd;border-radius:7px;padding:9px;font-size:11px}
+@media(min-width:800px){.pad,.actions{opacity:.55}.pad{bottom:22px}.actions{bottom:22px}#stats{width:190px}}
 </style>
 </head>
+
 <body>
 <canvas id="game"></canvas>
 
 <div id="hud">
-  <div id="top">
-    <div class="panel">
-      <div class="small">CONDIÇÃO FÍSICA</div>
-      <div class="value">STAMINA</div>
-      <div class="bar"><div id="staminaFill" class="fill"></div></div>
-      <div class="small" style="margin-top:7px">RUÍDO</div>
-      <div class="bar"><div id="noiseFill" class="fill" style="background:#b6a16d"></div></div>
+  <div id="brand" class="panel">THE LAST NIGHT</div>
+  <div id="objective" class="panel">OBJETIVO: encontre as páginas perdidas</div>
+
+  <div id="stats" class="panel">
+    <div class="stat">
+      <div class="stathead"><span>FÔLEGO</span><span id="staminaText">100%</span></div>
+      <div class="track"><div class="fill" id="staminaFill"></div></div>
     </div>
-    <div class="panel" style="text-align:right">
-      <div class="small">BATERIA</div>
-      <div id="batteryText" class="value">100%</div>
-      <div class="bar"><div id="batteryFill" class="fill" style="background:#d5ddb2"></div></div>
-      <div id="pagesText" class="small" style="margin-top:7px">PÁGINAS: 0/6</div>
+    <div class="stat">
+      <div class="stathead"><span>ENERGIA DA LANTERNA</span><span id="batteryText">100%</span></div>
+      <div class="track"><div class="fill" id="batteryFill"></div></div>
     </div>
+    <div class="stat">
+      <div class="stathead"><span>CONDIÇÃO</span><span id="healthText">100%</span></div>
+      <div class="track"><div class="fill" id="healthFill"></div></div>
+    </div>
+    <div id="pages">PÁGINAS: 0/6</div>
   </div>
 
-  <div id="objective">ENCONTRE AS 6 PÁGINAS E ESCAPE</div>
+  <button id="soundBtn">ÁUDIO: LIGAR</button>
+  <div id="hint"></div>
+  <div id="warning">ELE ESTÁ AQUI</div>
   <div id="message"></div>
-  <div id="bottomHint">WASD: MOVER<br>SHIFT: CORRER<br>F: LANTERNA<br>E: INTERAGIR</div>
+  <div id="interact">WASD mover · SHIFT correr · F lanterna · E interagir</div>
 
   <div id="controls">
-    <div></div><div class="ctrl" data-key="w">▲</div><div></div>
-    <div class="ctrl" data-key="a">◀</div><div class="ctrl" data-key="s">▼</div><div class="ctrl" data-key="d">▶</div>
-  </div>
-
-  <div id="actions">
-    <button class="action" id="lightBtn">🔦 LANTERNA: ON</button>
-    <button class="action" id="hideBtn">◈ ESCONDER / SAIR</button>
-    <button class="action" id="runBtn">» CORRER</button>
+    <div class="pad">
+      <button class="ctrl" id="up">▲</button>
+      <button class="ctrl" id="left">◀</button>
+      <button class="ctrl" id="down">▼</button>
+      <button class="ctrl" id="right">▶</button>
+    </div>
+    <div class="actions">
+      <button class="action" id="runBtn">CORRER</button>
+      <button class="action" id="lightBtn">LANTERNA</button>
+      <button class="action" id="hideBtn">ESCONDER</button>
+      <button class="action" id="useBtn">PEGAR / E</button>
+    </div>
   </div>
 </div>
 
-<div id="overlay">
-  <div id="card">
-    <div id="logo">THE LAST NIGHT</div>
-    <div id="subtitle">NÃO OLHE PARA TRÁS</div>
-    <div id="story">
-      Você acordou em uma floresta desconhecida.<br>
-      Existem páginas espalhadas pela mata.<br><br>
-      Encontre as seis páginas e descubra a saída.<br>
-      <b>Faça silêncio. Algo está ouvindo.</b>
-    </div>
-    <button id="start">INICIAR EXPEDIÇÃO</button>
-    <div id="instructions">PC: WASD / SHIFT / F / E<br>CELULAR: CONTROLES NA TELA<br>ATIVE O SOM PELO BOTÃO DE INÍCIO</div>
+<div id="start">
+  <div class="menu">
+    <h1>THE LAST<br>NIGHT</h1>
+    <div class="subtitle">A floresta não está vazia.<br>Encontre as páginas. Descubra a saída.<br>Não deixe que ele encontre você.</div>
+    <button class="play" id="playBtn">ENTRAR NA FLORESTA</button>
+    <div class="small">F / botão: lanterna · SHIFT / botão: correr<br>E / botão: interagir e esconder-se<br>Use fones para uma experiência melhor.</div>
+  </div>
+</div>
+
+<div id="endScreen">
+  <div class="menu">
+    <h1 id="endTitle">FIM</h1>
+    <div class="subtitle" id="endText"></div>
+    <button class="play" id="againBtn">TENTAR NOVAMENTE</button>
   </div>
 </div>
 
 <script>
-'use strict';
+(() => {
+"use strict";
 
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-const $=id=>document.getElementById(id);
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const $ = id => document.getElementById(id);
 
 let W=innerWidth,H=innerHeight,dpr=1;
 function resize(){
   W=innerWidth;H=innerHeight;
-  dpr=Math.min(window.devicePixelRatio||1,2);
+  dpr=Math.min(devicePixelRatio||1,2);
   canvas.width=Math.floor(W*dpr);
   canvas.height=Math.floor(H*dpr);
-  canvas.style.width=W+'px';
-  canvas.style.height=H+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+  canvas.style.width=W+"px";
+  canvas.style.height=H+"px";
 }
-addEventListener('resize',resize);
+addEventListener("resize",resize);
 resize();
 
-const WORLD=3600;
+const WORLD=5000;
+const rand=(a,b)=>a+Math.random()*(b-a);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const dist=(a,b,c,d)=>Math.hypot(a-c,b-d);
 const keys={};
-const held={run:false};
-let running=false,dead=false,won=false;
-let elapsed=0,lastTime=0,shake=0,flash=0;
-let messageTimer=0,ambienceTimer=0,footstepTimer=0;
-let audioCtx=null,master=null,windGain=null;
-let audioReady=false;
+const touch={up:false,down:false,left:false,right:false,run:false};
+let running=false,gameOver=false,won=false;
+let audioCtx=null,master=null,windGain=null,chaseOsc=null,chaseGain=null;
+let audioOn=false,lastTime=0,elapsed=0,noiseTimer=0,messageTimer=0;
+let messageText="",warningAmount=0,flashOn=true,doorUnlocked=false;
 
 const player={
- x:180,y:180,r:9,angle:0,
- stamina:100,battery:100,noise:0,
- light:true,hidden:false,pages:0
+  x:2500,y:2500,r:10,angle:0,
+  stamina:100,battery:100,health:100,
+  noise:0,hidden:false,hideSpot:null,
+  pages:0,stepTimer:0,stumble:0
 };
-const camera={x:180,y:180};
 
-let seed=4931;
-function rand(){
- seed=(seed*16807)%2147483647;
- return (seed-1)/2147483646;
-}
-function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
-function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
-function near(a,b,r){return dist(a,b)<r;}
-function visible(x,y,margin=80){
- return x>camera.x-W/2-margin&&x<camera.x+W/2+margin&&
-        y>camera.y-H/2-margin&&y<camera.y+H/2+margin;
-}
-function screenPos(x,y){
- return {x:x-camera.x+W/2,y:y-camera.y+H/2};
-}
-function showMessage(text,seconds=2){
- $('message').textContent=text;
- $('message').style.opacity='1';
- messageTimer=seconds;
-}
-function updateMessage(dt){
- if(messageTimer>0){
-  messageTimer-=dt;
-  if(messageTimer<=0)$('message').style.opacity='0';
- }
-}
-
-/* ÁUDIO: inicializado por interação real com o botão Iniciar. */
-function initAudio(){
- if(audioCtx){
-  if(audioCtx.state==='suspended')audioCtx.resume();
-  audioReady=true;
-  return;
- }
- try{
-  const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC){showMessage('SEU NAVEGADOR NÃO SUPORTA ÁUDIO');return;}
-  audioCtx=new AC();
-  master=audioCtx.createGain();
-  master.gain.value=.65;
-  master.connect(audioCtx.destination);
-
-  // Vento grave contínuo.
-  const osc=audioCtx.createOscillator();
-  osc.type='triangle';
-  osc.frequency.value=53;
-  windGain=audioCtx.createGain();
-  windGain.gain.value=.0001;
-  const filter=audioCtx.createBiquadFilter();
-  filter.type='lowpass';
-  filter.frequency.value=150;
-  osc.connect(filter);
-  filter.connect(windGain);
-  windGain.connect(master);
-  osc.start();
-
-  audioCtx.resume();
-  audioReady=true;
-  playTone(330,.16,.09,'sine');
-  setTimeout(()=>playTone(440,.25,.07,'sine'),140);
- }catch(err){
-  console.error('Erro ao iniciar áudio:',err);
-  showMessage('NÃO FOI POSSÍVEL INICIAR O ÁUDIO');
- }
-}
-function playTone(freq,duration,gain=.04,type='sine'){
- if(!audioCtx||!audioReady)return;
- try{
-  const osc=audioCtx.createOscillator();
-  const g=audioCtx.createGain();
-  osc.type=type;
-  osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
-  g.gain.setValueAtTime(Math.max(.0001,gain),audioCtx.currentTime);
-  g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+duration);
-  osc.connect(g);g.connect(master);
-  osc.start();osc.stop(audioCtx.currentTime+duration+.02);
- }catch(e){}
-}
-function playNoise(duration=.16,gain=.025){
- if(!audioCtx||!audioReady)return;
- try{
-  const length=Math.max(1,Math.floor(audioCtx.sampleRate*duration));
-  const buffer=audioCtx.createBuffer(1,length,audioCtx.sampleRate);
-  const data=buffer.getChannelData(0);
-  for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*(1-i/length);
-  const source=audioCtx.createBufferSource();
-  const g=audioCtx.createGain();
-  g.gain.value=gain;
-  source.buffer=buffer;
-  source.connect(g);g.connect(master);
-  source.start();
- }catch(e){}
-}
-function footstepSound(){
- playTone(65+Math.random()*30,.10,.05,'triangle');
- playNoise(.055,.015);
-}
-function scareSound(){
- playTone(43,1.1,.20,'sawtooth');
- playTone(58,.8,.10,'square');
- playNoise(.7,.11);
-}
-function updateAudio(){
- if(!audioCtx||!audioReady||!windGain)return;
- const level=player.hidden?.0005:.012+player.noise*.00025;
- windGain.gain.setTargetAtTime(level,audioCtx.currentTime,.5);
-}
-
-/* OBJETOS DO MAPA */
-const pages=[
- {x:560,y:430,found:false},{x:1300,y:870,found:false},
- {x:1900,y:1450,found:false},{x:2850,y:1100,found:false},
- {x:850,y:2800,found:false},{x:3000,y:3000,found:false}
-];
-const batteries=[
- [800,1200],[1650,530],[1050,1950],[2800,2300],
- [3200,1600],[500,3200],[2200,600],[1750,2850]
-].map(p=>({x:p[0],y:p[1],taken:false}));
-const hideSpots=[
- [370,600],[1050,500],[1600,1150],[2400,800],[3200,1400],
- [700,2100],[1500,2500],[2600,2850],[3300,3200],[2000,3300]
-].map(p=>({x:p[0],y:p[1]}));
-const houses=[
- [900,850],[2200,450],[3000,1850],[650,2600],
- [2300,3000],[1250,3200],[3300,2600]
-].map((p,i)=>({x:p[0],y:p[1],w:105+(i%3)*18,h:82+(i%2)*20,i}));
-const camps=[];
-const trees=[];
-const blood=[];
-const fireflies=[];
-for(let i=0;i<7;i++)camps.push({
- x:350+rand()*(WORLD-700),y:350+rand()*(WORLD-700),r:30+rand()*15
-});
-for(let i=0;i<600;i++)trees.push({
- x:rand()*WORLD,y:rand()*WORLD,r:10+rand()*16,shade:Math.floor(rand()*3)
-});
-for(let i=0;i<34;i++)blood.push({
- x:rand()*WORLD,y:rand()*WORLD,r:3+rand()*10,a:rand()*6.28
-});
-for(let i=0;i<90;i++)fireflies.push({
- x:rand()*WORLD,y:rand()*WORLD,p:rand()*6.28,s:.5+rand()*1.8
-});
-
-const exit={x:WORLD-150,y:WORLD-150};
 const monster={
- x:400,y:300,r:15,state:'wander',
- tx:750,ty:650,phase:0,seen:false
+  x:2900,y:2300,r:19,
+  mode:"patrol",targetX:0,targetY:0,
+  speed:54,alert:0,search:0,
+  attack:0,angle:0,seen:false
 };
 
-function resetGame(){
- player.x=180;player.y=180;player.angle=0;
- player.stamina=100;player.battery=100;player.noise=0;
- player.light=true;player.hidden=false;player.pages=0;
- pages.forEach(p=>p.found=false);
- batteries.forEach(b=>b.taken=false);
- monster.x=400;monster.y=300;
- monster.state='wander';monster.tx=750;monster.ty=650;
- monster.phase=0;monster.seen=false;
- elapsed=0;shake=0;flash=0;dead=false;won=false;
- $('pagesText').textContent='PÁGINAS: 0/6';
- $('objective').textContent='ENCONTRE AS 6 PÁGINAS E ESCAPE';
- $('lightBtn').textContent='🔦 LANTERNA: ON';
- $('batteryText').textContent='100%';
- $('batteryFill').style.width='100%';
- $('staminaFill').style.width='100%';
- $('noiseFill').style.width='0%';
- $('start').textContent='INICIAR EXPEDIÇÃO';
- $('logo').textContent='THE LAST NIGHT';
- $('subtitle').textContent='NÃO OLHE PARA TRÁS';
- $('story').innerHTML='Você acordou em uma floresta desconhecida.<br>Existem páginas espalhadas pela mata.<br><br>Encontre as seis páginas e descubra a saída.<br><b>Faça silêncio. Algo está ouvindo.</b>';
- $('instructions').innerHTML='PC: WASD / SHIFT / F / E<br>CELULAR: CONTROLES NA TELA<br>ATIVE O SOM PELO BOTÃO DE INÍCIO';
- $('overlay').classList.add('hidden');
- showMessage('A FLORESTA ESTÁ EM SILÊNCIO...',2.5);
+let trees=[],rocks=[],houses=[],holes=[],pages=[],batteries=[],hides=[],blood=[],fireflies=[],footprints=[];
+let particles=[];
+let exit={x:4700,y:4600,r:45};
+let worldObjects=[];
+
+function resetWorld(){
+  trees=[];rocks=[];houses=[];holes=[];pages=[];batteries=[];
+  hides=[];blood=[];fireflies=[];footprints=[];particles=[];
+  player.x=2500;player.y=2500;player.angle=0;
+  player.stamina=100;player.battery=100;player.health=100;
+  player.noise=0;player.hidden=false;player.hideSpot=null;
+  player.pages=0;player.stepTimer=0;player.stumble=0;
+  monster.x=2900;monster.y=2300;monster.mode="patrol";
+  monster.alert=0;monster.search=0;monster.attack=0;monster.seen=false;
+  flashOn=true;doorUnlocked=false;won=false;gameOver=false;
+  warningAmount=0;elapsed=0;
+  exit={x:4700,y:4600,r:45};
+
+  // Área inicial e saída ficam livres de obstáculos.
+  const safeZones=[
+    {x:2500,y:2500,r:250},
+    {x:4700,y:4600,r:230},
+    {x:2900,y:2300,r:110}
+  ];
+  function safe(x,y){
+    return safeZones.every(z=>dist(x,y,z.x,z.y)>z.r);
+  }
+
+  for(let i=0;i<1050;i++){
+    let x=rand(80,WORLD-80),y=rand(80,WORLD-80);
+    if(safe(x,y))trees.push({x,y,r:rand(13,25),tone:rand(0,1)});
+  }
+  for(let i=0;i<140;i++){
+    let x=rand(80,WORLD-80),y=rand(80,WORLD-80);
+    if(safe(x,y))rocks.push({x,y,r:rand(7,16)});
+  }
+  // Construções abandonadas.
+  for(let i=0;i<10;i++){
+    let x=rand(350,WORLD-350),y=rand(350,WORLD-350);
+    if(safe(x,y))houses.push({x,y,w:rand(75,125),h:rand(70,115)});
+  }
+  // Buracos espalhados pela floresta.
+  for(let i=0;i<85;i++){
+    let x=rand(100,WORLD-100),y=rand(100,WORLD-100);
+    if(safe(x,y))holes.push({x,y,r:rand(16,30)});
+  }
+  // Esconderijos: troncos ocos e arbustos densos.
+  for(let i=0;i<20;i++){
+    let x=rand(200,WORLD-200),y=rand(200,WORLD-200);
+    if(safe(x,y))hides.push({x,y,r:25,used:false});
+  }
+  for(let i=0;i<45;i++){
+    blood.push({x:rand(100,WORLD-100),y:rand(100,WORLD-100),r:rand(3,12)});
+  }
+
+  // Seis páginas relativamente espalhadas, mas alcançáveis.
+  const spots=[
+    [1900,2200],[3100,1800],[1500,3300],
+    [3500,3000],[3900,4100],[2100,4100]
+  ];
+  spots.forEach((p,i)=>pages.push({x:p[0],y:p[1],taken:false,id:i}));
+  for(let i=0;i<12;i++){
+    batteries.push({x:rand(250,WORLD-250),y:rand(250,WORLD-250),taken:false});
+  }
+  for(let i=0;i<170;i++){
+    fireflies.push({x:rand(0,WORLD),y:rand(0,WORLD),phase:rand(0,6.28),size:rand(1,2.4)});
+  }
+  pickPatrolTarget();
 }
 
-/* CONTROLES */
-$('start').addEventListener('click',()=>{
- initAudio();
- resetGame();
- running=true;
- lastTime=performance.now();
-});
-
-document.querySelectorAll('[data-key]').forEach(el=>{
- const key=el.dataset.key;
- const set=(value,e)=>{
-  if(e)e.preventDefault();
-  keys[key]=value;
-  el.classList.toggle('active',value);
- };
- el.addEventListener('pointerdown',e=>{
-  try{el.setPointerCapture(e.pointerId);}catch(_){}
-  set(true,e);
- });
- el.addEventListener('pointerup',e=>set(false,e));
- el.addEventListener('pointercancel',e=>set(false,e));
- el.addEventListener('lostpointercapture',()=>set(false));
-});
-
-addEventListener('keydown',e=>{
- const k=e.key.toLowerCase();
- if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift',' '].includes(k))e.preventDefault();
- keys[k]=true;
- if(e.repeat)return;
- if(k==='f')toggleLight();
- if(k==='e')interact();
-});
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-addEventListener('blur',()=>{
- Object.keys(keys).forEach(k=>keys[k]=false);
- held.run=false;
-});
-
-$('runBtn').addEventListener('pointerdown',e=>{
- e.preventDefault();held.run=true;
-});
-$('runBtn').addEventListener('pointerup',()=>held.run=false);
-$('runBtn').addEventListener('pointercancel',()=>held.run=false);
-$('runBtn').addEventListener('lostpointercapture',()=>held.run=false);
-$('lightBtn').addEventListener('click',toggleLight);
-$('hideBtn').addEventListener('click',interact);
-
-function isDown(...names){return names.some(k=>keys[k]);}
-function toggleLight(){
- if(!running||player.hidden)return;
- if(player.battery<=0){
-  showMessage('A BATERIA ACABOU');
-  playTone(100,.18,.04,'square');
-  return;
- }
- player.light=!player.light;
- $('lightBtn').textContent=player.light?'🔦 LANTERNA: ON':'🔦 LANTERNA: OFF';
- playTone(player.light?480:190,.12,.04,'square');
+function pickPatrolTarget(){
+  monster.targetX=clamp(monster.x+rand(-380,380),80,WORLD-80);
+  monster.targetY=clamp(monster.y+rand(-380,380),80,WORLD-80);
 }
-function nearestHide(){
- let best=null,bd=Infinity;
- for(const h of hideSpots){
-  const d=dist(player,h);
-  if(d<bd){bd=d;best=h;}
- }
- return bd<55?best:null;
+resetWorld();
+
+function say(text,seconds=2.5){
+  messageText=text;messageTimer=seconds;
+  $("message").textContent=text;
 }
+
+function startAudio(){
+  if(audioCtx){
+    if(audioCtx.state==="suspended")audioCtx.resume();
+    audioOn=true;return;
+  }
+  try{
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    master=audioCtx.createGain();
+    master.gain.value=.55;
+    master.connect(audioCtx.destination);
+
+    windGain=audioCtx.createGain();
+    windGain.gain.value=.018;
+    windGain.connect(master);
+    const wind=audioCtx.createOscillator();
+    wind.type="sawtooth";
+    wind.frequency.value=48;
+    wind.connect(windGain);
+    wind.start();
+
+    // Tom grave e pulsante durante perseguição.
+    chaseOsc=audioCtx.createOscillator();
+    chaseOsc.type="sine";
+    chaseOsc.frequency.value=43;
+    chaseGain=audioCtx.createGain();
+    chaseGain.gain.value=0;
+    chaseOsc.connect(chaseGain);
+    chaseGain.connect(master);
+    chaseOsc.start();
+
+    audioOn=true;
+    $("soundBtn").textContent="ÁUDIO: LIGADO";
+  }catch(e){audioOn=false;}
+}
+
+function beep(freq=400,duration=.1,type="sine",volume=.07){
+  if(!audioOn||!audioCtx)return;
+  try{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type=type;osc.frequency.value=freq;
+    gain.gain.setValueAtTime(volume,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);
+    osc.connect(gain);gain.connect(master);
+    osc.start();osc.stop(audioCtx.currentTime+duration);
+  }catch(e){}
+}
+
+function footsteps(){
+  if(!audioOn||!audioCtx)return;
+  const duration=.075;
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+  osc.type="triangle";
+  osc.frequency.value=rand(65,105);
+  gain.gain.setValueAtTime(player.hidden?.003:.025,audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);
+  osc.connect(gain);gain.connect(master);
+  osc.start();osc.stop(audioCtx.currentTime+duration);
+}
+
+$("soundBtn").addEventListener("click",()=>{
+  if(!audioCtx){startAudio();say("O som da floresta está ativo.");return;}
+  audioOn=!audioOn;
+  if(audioOn)audioCtx.resume();else audioCtx.suspend();
+  $("soundBtn").textContent=audioOn?"ÁUDIO: LIGADO":"ÁUDIO: DESLIGADO";
+});
+
+function circleRectCollision(x,y,r,rect){
+  const cx=clamp(x,rect.x-rect.w/2,rect.x+rect.w/2);
+  const cy=clamp(y,rect.y-rect.h/2,rect.y+rect.h/2);
+  return dist(x,y,cx,cy)<r;
+}
+function collides(x,y,r){
+  if(x<r||y<r||x>WORLD-r||y>WORLD-r)return true;
+  for(const t of trees)if(dist(x,y,t.x,t.y)<r+t.r*.65)return true;
+  for(const o of rocks)if(dist(x,y,o.x,o.y)<r+o.r*.8)return true;
+  for(const h of houses)if(circleRectCollision(x,y,r,h))return true;
+  return false;
+}
+function moveEntity(obj,dx,dy,r){
+  let moved=false;
+  if(!collides(obj.x+dx,obj.y,r)){obj.x+=dx;moved ||= dx!==0;}
+  if(!collides(obj.x,obj.y+dy,r)){obj.y+=dy;moved ||= dy!==0;}
+  return moved;
+}
+function lineBlocked(x1,y1,x2,y2){
+  const steps=Math.ceil(dist(x1,y1,x2,y2)/30);
+  for(let i=1;i<steps;i++){
+    const x=x1+(x2-x1)*i/steps;
+    const y=y1+(y2-y1)*i/steps;
+    for(const t of trees){
+      if(Math.abs(t.x-x)>30||Math.abs(t.y-y)>30)continue;
+      if(dist(x,y,t.x,t.y)<t.r*.8)return true;
+    }
+    for(const h of houses){
+      if(Math.abs(x-h.x)<h.w/2&&Math.abs(y-h.y)<h.h/2)return true;
+    }
+  }
+  return false;
+}
+function monsterCanSee(){
+  const d=dist(monster.x,monster.y,player.x,player.y);
+  if(player.hidden||d>440)return false;
+  const a=Math.atan2(player.y-monster.y,player.x-monster.x);
+  let delta=Math.atan2(Math.sin(a-monster.angle),Math.cos(a-monster.angle));
+  const cone=Math.abs(delta)<(flashOn?.95:.63);
+  return cone&&!lineBlocked(monster.x,monster.y,player.x,player.y);
+}
+
 function interact(){
- if(!running)return;
- if(player.hidden){
-  player.hidden=false;
-  player.noise=0;
-  showMessage('VOCÊ SAIU DO ESCONDERIJO');
-  playTone(120,.12,.03,'triangle');
-  return;
- }
- if(nearestHide()){
-  player.hidden=true;
-  player.light=false;
-  player.noise=0;
-  $('lightBtn').textContent='🔦 LANTERNA: OFF';
-  showMessage('ESCONDIDO... FIQUE EM SILÊNCIO');
-  playTone(100,.3,.04,'triangle');
-  return;
- }
- if(near(player,exit,55)){
-  if(player.pages===pages.length)finish(true);
-  else showMessage('SAÍDA TRANCADA — FALTAM PÁGINAS');
-  return;
- }
- showMessage('NÃO HÁ NADA PARA INTERAGIR');
-}
-
-function movePlayer(dt){
- if(player.hidden)return;
- let dx=(isDown('d','arrowright')?1:0)-(isDown('a','arrowleft')?1:0);
- let dy=(isDown('s','arrowdown')?1:0)-(isDown('w','arrowup')?1:0);
- const mag=Math.hypot(dx,dy);
- if(mag>0){dx/=mag;dy/=mag;player.angle=Math.atan2(dy,dx);}
- const sprint=(isDown('shift')||held.run)&&mag>0&&player.stamina>0;
- const speed=sprint?195:112;
- if(sprint){
-  player.stamina=Math.max(0,player.stamina-32*dt);
-  player.noise=Math.min(100,player.noise+37*dt);
- }else{
-  player.stamina=Math.min(100,player.stamina+18*dt);
-  player.noise=Math.max(0,player.noise-18*dt);
- }
- if(mag>0){
-  player.x=clamp(player.x+dx*speed*dt,20,WORLD-20);
-  player.y=clamp(player.y+dy*speed*dt,20,WORLD-20);
-  footstepTimer-=dt;
-  if(footstepTimer<=0){
-   footstepSound();
-   footstepTimer=sprint?.28:.5;
+  if(!running||gameOver)return;
+  if(player.hidden){
+    player.hidden=false;player.hideSpot=null;
+    say("Saíste do esconderijo.");
+    beep(230,.1);
+    return;
   }
- }
- if(player.light&&player.battery>0){
-  player.battery=Math.max(0,player.battery-1.05*dt);
-  if(player.battery===0){
-   player.light=false;
-   $('lightBtn').textContent='🔦 LANTERNA: OFF';
-   showMessage('A LANTERNA APAGOU');
+  for(const h of hides){
+    if(dist(player.x,player.y,h.x,h.y)<h.r+35){
+      player.hidden=true;player.hideSpot=h;
+      flashOn=false;
+      say("Escondido. Fique quieto.");
+      beep(180,.18);
+      return;
+    }
   }
- }
- updateAudio();
-}
-function updateItems(){
- for(const p of pages){
-  if(!p.found&&near(player,p,24)){
-   p.found=true;player.pages++;
-   $('pagesText').textContent=`PÁGINAS: ${player.pages}/6`;
-   showMessage(`PÁGINA ENCONTRADA — ${player.pages}/6`);
-   playTone(550,.2,.07,'sine');
-   setTimeout(()=>playTone(720,.25,.05,'sine'),100);
-   if(player.pages===pages.length){
-    $('objective').textContent='VÁ ATÉ A SAÍDA NO CANTO INFERIOR DIREITO';
-    showMessage('TODAS AS PÁGINAS ENCONTRADAS. ESCAPE!');
-   }
+  for(const p of pages){
+    if(!p.taken&&dist(player.x,player.y,p.x,p.y)<36){
+      p.taken=true;player.pages++;
+      beep(620,.12,"sine",.08);
+      say("Página encontrada. "+player.pages+"/6");
+      if(player.pages===6){
+        doorUnlocked=true;
+        $("objective").textContent="OBJETIVO: encontre a saída no sudeste";
+        say("Você ouviu uma porta se abrindo ao longe...");
+        beep(220,.4,"sawtooth",.1);
+      }
+      return;
+    }
   }
- }
- for(const b of batteries){
-  if(!b.taken&&near(player,b,22)){
-   b.taken=true;
-   player.battery=Math.min(100,player.battery+38);
-   showMessage('PILHA ENCONTRADA: +38%');
-   playTone(800,.12,.05,'square');
+  for(const b of batteries){
+    if(!b.taken&&dist(player.x,player.y,b.x,b.y)<32){
+      b.taken=true;player.battery=Math.min(100,player.battery+38);
+      say("Bateria recolhida. +38%");
+      beep(520,.12);
+      return;
+    }
   }
- }
-}
-
-/* IA DO MONSTRO */
-function blockedByTree(x1,y1,x2,y2){
- const vx=x2-x1,vy=y2-y1,len=vx*vx+vy*vy;
- if(len<1)return false;
- for(const t of trees){
-  if(t.r<18||Math.hypot(t.x-x1,t.y-y1)>500)continue;
-  const u=clamp(((t.x-x1)*vx+(t.y-y1)*vy)/len,0,1);
-  const px=x1+u*vx,py=y1+u*vy;
-  if(Math.hypot(t.x-px,t.y-py)<t.r*.72)return true;
- }
- return false;
-}
-function updateMonster(dt){
- monster.phase+=dt;
- const d=dist(monster,player);
- const sight=d<480&&!blockedByTree(monster.x,monster.y,player.x,player.y);
- const hearing=d<Math.max(120,player.noise*5.3);
- const lightThreat=player.light&&d<320&&!player.hidden;
-
- if(!player.hidden&&(sight||hearing||lightThreat)){
-  monster.state='chase';
-  monster.tx=player.x;monster.ty=player.y;
-  monster.seen=true;
- }else if(monster.state==='chase'){
-  if(Math.hypot(monster.x-monster.tx,monster.y-monster.ty)<35){
-   monster.state='wander';
+  if(dist(player.x,player.y,exit.x,exit.y)<70){
+    if(doorUnlocked){
+      won=true;endGame(true);
+    }else{
+      say("A saída está trancada. Encontre as 6 páginas.");
+    }
+    return;
   }
- }
- if(monster.state==='chase'){
-  const dx=monster.tx-monster.x,dy=monster.ty-monster.y;
-  const len=Math.hypot(dx,dy)||1;
-  const speed=player.hidden?0:86+player.noise*.45;
-  monster.x+=dx/len*speed*dt;
-  monster.y+=dy/len*speed*dt;
- }else{
-  const dx=monster.tx-monster.x,dy=monster.ty-monster.y;
-  const len=Math.hypot(dx,dy);
-  if(len<28){
-   monster.tx=clamp(monster.x+(rand()-.5)*450,30,WORLD-30);
-   monster.ty=clamp(monster.y+(rand()-.5)*450,30,WORLD-30);
-  }else{
-   monster.x+=dx/len*27*dt;
-   monster.y+=dy/len*27*dt;
+  say("Não há nada para pegar aqui.");
+}
+
+function endGame(victory){
+  gameOver=true;running=false;
+  $("endScreen").style.display="flex";
+  $("endTitle").textContent=victory?"VOCÊ ESCAPOU":"ELE TE ENCONTROU";
+  $("endText").textContent=victory
+    ?"Você conseguiu sair da floresta. Mas algo veio com você..."
+    :"A floresta ficou em silêncio. Tente novamente e não faça tanto barulho.";
+  if(victory)beep(700,.5,"sine",.12);
+  else{
+    beep(80,.7,"sawtooth",.15);
+    if(audioOn&&audioCtx){
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type="sawtooth";o.frequency.setValueAtTime(180,audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(35,audioCtx.currentTime+.8);
+      g.gain.setValueAtTime(.2,audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+1);
+      o.connect(g);g.connect(master);o.start();o.stop(audioCtx.currentTime+1);
+    }
   }
- }
- monster.x=clamp(monster.x,25,WORLD-25);
- monster.y=clamp(monster.y,25,WORLD-25);
- if(!player.hidden&&d<player.r+monster.r+7){
-  finish(false);return;
- }
- if(monster.state==='chase'&&d<300){
-  shake=Math.max(shake,2.5);
-  if(Math.random()<.012)playTone(42+Math.random()*20,.2,.025,'sawtooth');
- }
 }
 
-/* DESENHO DO MAPA */
-function drawGround(){
- ctx.fillStyle='#111a14';ctx.fillRect(0,0,W,H);
- for(let i=0;i<140;i++){
-  const x=((i*197+Math.floor((camera.x-W/2)/170)*53)%WORLD+WORLD)%WORLD;
-  const y=((i*293+Math.floor((camera.y-H/2)/170)*71)%WORLD+WORLD)%WORLD;
-  if(!visible(x,y,20))continue;
-  const s=screenPos(x,y);
-  ctx.globalAlpha=.35;
-  ctx.fillStyle=i%3===0?'#29362a':'#0a120d';
-  ctx.fillRect(s.x,s.y,2+i%4,2+i%3);
- }
- ctx.globalAlpha=1;
-}
-function drawTree(t){
- if(!visible(t.x,t.y,45))return;
- const s=screenPos(t.x,t.y),r=t.r;
- ctx.fillStyle='#070b08';
- ctx.beginPath();ctx.ellipse(s.x+4,s.y+7,r*1.25,r*.75,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle=['#142018','#1b2a1e','#101a14'][t.shade];
- ctx.beginPath();ctx.arc(s.x,s.y,r,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#26372a';
- ctx.beginPath();ctx.arc(s.x-r*.2,s.y-r*.25,r*.52,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#080d09';ctx.fillRect(s.x-r*.14,s.y+r*.3,r*.28,r*.8);
-}
-function drawHouse(h){
- if(!visible(h.x,h.y,90))return;
- const s=screenPos(h.x,h.y);
- ctx.save();ctx.translate(s.x,s.y);
- ctx.fillStyle='#050706';ctx.fillRect(-h.w/2+7,-h.h/2+12,h.w,h.h);
- ctx.fillStyle='#252d27';ctx.fillRect(-h.w/2,-h.h/2,h.w,h.h);
- ctx.fillStyle='#0b100d';
- ctx.beginPath();ctx.moveTo(-h.w*.62,-h.h*.42);ctx.lineTo(0,-h.h*.95);ctx.lineTo(h.w*.62,-h.h*.42);ctx.closePath();ctx.fill();
- ctx.strokeStyle='#465047';ctx.lineWidth=2;ctx.stroke();
- ctx.fillStyle='#060907';
- ctx.fillRect(-h.w*.31,-h.h*.18,h.w*.19,h.h*.24);
- ctx.fillRect(h.w*.14,-h.h*.18,h.w*.19,h.h*.24);
- ctx.fillStyle='#493b2a';ctx.fillRect(-h.w*.09,h.h*.08,h.w*.18,h.h*.42);
- ctx.fillStyle='#121914';ctx.fillRect(-h.w*.56,h.h*.37,h.w*1.12,5);
- ctx.restore();
-}
-function drawCamp(c){
- if(!visible(c.x,c.y,60))return;
- const s=screenPos(c.x,c.y);
- ctx.fillStyle='#090d0a';ctx.beginPath();ctx.ellipse(s.x,s.y,c.r*1.3,c.r*.9,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#292a24';ctx.beginPath();ctx.ellipse(s.x,s.y,15,9,0,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#554633';ctx.lineWidth=4;
- ctx.beginPath();ctx.moveTo(s.x-12,s.y);ctx.lineTo(s.x+12,s.y);ctx.moveTo(s.x,s.y-10);ctx.lineTo(s.x,s.y+10);ctx.stroke();
- ctx.strokeStyle='#303a31';ctx.lineWidth=3;
- ctx.beginPath();ctx.moveTo(s.x-c.r,s.y-c.r*.5);ctx.lineTo(s.x-c.r*.6,s.y-c.r*1.3);ctx.lineTo(s.x+c.r*.6,s.y-c.r*1.3);ctx.lineTo(s.x+c.r,s.y+c.r*.1);ctx.stroke();
-}
-function drawBlood(b){
- if(!visible(b.x,b.y,25))return;
- const s=screenPos(b.x,b.y);
- ctx.save();ctx.translate(s.x,s.y);ctx.rotate(b.a);
- ctx.fillStyle='#421014';ctx.beginPath();ctx.ellipse(0,0,b.r*1.6,b.r*.7,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#65191c';ctx.beginPath();ctx.arc(b.r*.8,-b.r*.3,b.r*.3,0,Math.PI*2);ctx.fill();
- ctx.restore();
-}
-function drawHideSpots(){
- for(const h of hideSpots){
-  if(!visible(h.x,h.y,40))continue;
-  const s=screenPos(h.x,h.y);
-  ctx.fillStyle='#080d09';
-  ctx.beginPath();ctx.ellipse(s.x,s.y,25,16,0,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#2c3b2e';ctx.lineWidth=3;
-  ctx.beginPath();ctx.moveTo(s.x-24,s.y-4);ctx.lineTo(s.x-5,s.y-24);ctx.lineTo(s.x+17,s.y-15);ctx.stroke();
- }
-}
-function drawPages(){
- for(const p of pages){
-  if(p.found||!visible(p.x,p.y,30))continue;
-  const s=screenPos(p.x,p.y);
-  ctx.save();ctx.translate(s.x,s.y);ctx.rotate(Math.sin(elapsed+p.x)*.1);
-  ctx.shadowBlur=14;ctx.shadowColor='#d6e5ce';
-  ctx.fillStyle='#d5dece';ctx.fillRect(-6,-8,12,16);
-  ctx.shadowBlur=0;ctx.strokeStyle='#485348';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(-3,-3);ctx.lineTo(3,-3);ctx.moveTo(-3,1);ctx.lineTo(3,1);ctx.stroke();
-  ctx.restore();
- }
-}
-function drawBatteries(){
- for(const b of batteries){
-  if(b.taken||!visible(b.x,b.y,25))continue;
-  const s=screenPos(b.x,b.y);
-  ctx.save();ctx.translate(s.x,s.y);
-  ctx.shadowBlur=12;ctx.shadowColor='#c8e2a3';
-  ctx.fillStyle='#c0d1a4';ctx.fillRect(-5,-8,10,16);
-  ctx.shadowBlur=0;ctx.fillStyle='#34402f';ctx.fillRect(-2,-5,4,10);
-  ctx.restore();
- }
-}
-function drawExit(){
- if(!visible(exit.x,exit.y,60))return;
- const s=screenPos(exit.x,exit.y);
- ctx.strokeStyle=player.pages===6?'#a8c9a2':'#515b52';
- ctx.lineWidth=3;ctx.strokeRect(s.x-24,s.y-27,48,54);
- ctx.beginPath();ctx.moveTo(s.x-24,s.y-27);ctx.lineTo(s.x,s.y-42);ctx.lineTo(s.x+24,s.y-27);ctx.stroke();
- ctx.fillStyle=player.pages===6?'#b9d9b1':'#6b766b';
- ctx.font='9px Arial';ctx.textAlign='center';ctx.fillText('SAÍDA',s.x,s.y+43);
-}
-function drawFireflies(){
- for(const f of fireflies){
-  if(!visible(f.x,f.y,5))continue;
-  const s=screenPos(f.x,f.y);
-  const a=.15+.45*(.5+.5*Math.sin(elapsed*f.s+f.p));
-  ctx.fillStyle=`rgba(180,210,147,${a})`;
-  ctx.beginPath();ctx.arc(s.x,s.y,1.4,0,Math.PI*2);ctx.fill();
- }
-}
-function drawPlayer(){
- if(player.hidden)return;
- const s=screenPos(player.x,player.y);
- ctx.fillStyle='#050706';ctx.beginPath();ctx.ellipse(s.x+2,s.y+5,12,9,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#89978b';ctx.beginPath();ctx.arc(s.x,s.y,7,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#d2ddd1';ctx.lineWidth=2;
- ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x+Math.cos(player.angle)*12,s.y+Math.sin(player.angle)*12);ctx.stroke();
-}
-
-/* O MONSTRO É DESENHADO DEPOIS DA CAMADA ESCURA.
-   Assim ele não desaparece quando a lanterna está desligada. */
-function drawMonster(){
- if(!visible(monster.x,monster.y,100))return;
- const s=screenPos(monster.x,monster.y);
- const d=dist(monster,player);
- const pulse=1+Math.sin(monster.phase*5)*.045;
- ctx.save();ctx.translate(s.x,s.y);ctx.scale(pulse,pulse);
-
- // Sombra.
- ctx.fillStyle='#020302';
- ctx.beginPath();ctx.ellipse(5,18,19,29,.12,0,Math.PI*2);ctx.fill();
-
- // Corpo comprido.
- ctx.strokeStyle='#070908';ctx.lineWidth=10;ctx.lineCap='round';
- ctx.beginPath();
- ctx.moveTo(0,-3);ctx.lineTo(-3,24);
- ctx.moveTo(-2,5);ctx.lineTo(-19,20);
- ctx.moveTo(-2,7);ctx.lineTo(17,19);
- ctx.moveTo(-3,24);ctx.lineTo(-13,44);
- ctx.moveTo(-3,24);ctx.lineTo(9,44);
- ctx.stroke();
-
- ctx.fillStyle='#171b18';
- ctx.beginPath();ctx.ellipse(0,-12,12,17,.12,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#050605';
- ctx.beginPath();ctx.ellipse(0,-20,10,12,0,0,Math.PI*2);ctx.fill();
-
- // Olhos claros para ajudar o jogador a localizar a criatura.
- ctx.shadowBlur=15;ctx.shadowColor='#e5eee0';ctx.fillStyle='#e0ead8';
- ctx.fillRect(-6,-22,3,2);ctx.fillRect(3,-22,3,2);
- ctx.shadowBlur=0;
- ctx.restore();
-
- // Contorno fraco à distância; mais forte quando está perseguindo.
- const alpha=monster.state==='chase'?.32:.13;
- if(d<600){
-  ctx.strokeStyle=`rgba(174,196,169,${alpha})`;
-  ctx.lineWidth=1;
-  ctx.beginPath();ctx.arc(s.x,s.y,23+Math.sin(elapsed*3)*2,0,Math.PI*2);ctx.stroke();
- }
- if(d<270&&!player.hidden){
-  ctx.fillStyle=`rgba(130,0,0,${clamp((270-d)/270,0,.16)})`;
-  ctx.fillRect(0,0,W,H);
- }
-}
-function drawFog(){
- for(let i=0;i<8;i++){
-  const x=((i*231+elapsed*8)%(W+260))-130;
-  const y=(i*137+Math.sin(elapsed*.2+i)*40)%H;
-  const g=ctx.createRadialGradient(x,y,4,x,y,150);
-  g.addColorStop(0,'rgba(125,145,128,.035)');
-  g.addColorStop(1,'rgba(100,120,104,0)');
-  ctx.fillStyle=g;ctx.fillRect(x-180,y-130,360,260);
- }
-}
-
-/* Escuridão numa camada separada. Nunca apaga os pixels do jogo. */
-const darkCanvas=document.createElement('canvas');
-const darkCtx=darkCanvas.getContext('2d');
-function drawLighting(){
- if(darkCanvas.width!==canvas.width||darkCanvas.height!==canvas.height){
-  darkCanvas.width=canvas.width;darkCanvas.height=canvas.height;
- }
- darkCtx.setTransform(dpr,0,0,dpr,0,0);
- darkCtx.clearRect(0,0,W,H);
- darkCtx.fillStyle='rgba(0,0,0,.82)';
- darkCtx.fillRect(0,0,W,H);
-
- const p=screenPos(player.x,player.y);
- darkCtx.globalCompositeOperation='destination-out';
-
- const ambient=darkCtx.createRadialGradient(p.x,p.y,5,p.x,p.y,70);
- ambient.addColorStop(0,'rgba(0,0,0,1)');
- ambient.addColorStop(1,'rgba(0,0,0,0)');
- darkCtx.fillStyle=ambient;
- darkCtx.beginPath();darkCtx.arc(p.x,p.y,70,0,Math.PI*2);darkCtx.fill();
-
- if(player.light&&player.battery>0&&!player.hidden){
-  const len=440*(.6+.4*player.battery/100);
-  darkCtx.save();
-  darkCtx.translate(p.x,p.y);darkCtx.rotate(player.angle);
-  const beam=darkCtx.createRadialGradient(0,0,12,0,0,len);
-  beam.addColorStop(0,'rgba(0,0,0,1)');
-  beam.addColorStop(.55,'rgba(0,0,0,.9)');
-  beam.addColorStop(1,'rgba(0,0,0,0)');
-  darkCtx.fillStyle=beam;
-  darkCtx.beginPath();darkCtx.moveTo(0,0);darkCtx.arc(0,0,len,-.55,.55);darkCtx.closePath();darkCtx.fill();
-  darkCtx.restore();
- }
- darkCtx.globalCompositeOperation='source-over';
- ctx.drawImage(darkCanvas,0,0,W,H);
-
- const vignette=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.74);
- vignette.addColorStop(0,'rgba(0,0,0,0)');
- vignette.addColorStop(.7,'rgba(0,0,0,.12)');
- vignette.addColorStop(1,'rgba(0,0,0,.75)');
- ctx.fillStyle=vignette;ctx.fillRect(0,0,W,H);
-
- if(player.noise>45){
-  ctx.fillStyle=`rgba(110,0,0,${(player.noise-45)/650})`;
-  ctx.fillRect(0,0,W,H);
- }
- if(flash>0){
-  ctx.fillStyle=`rgba(210,220,210,${flash})`;
-  ctx.fillRect(0,0,W,H);
-  flash=Math.max(0,flash-.035);
- }
-}
-function drawWorld(){
- ctx.save();
- if(shake>0){
-  ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
-  shake=Math.max(0,shake-.12);
- }
- drawGround();
- camps.forEach(drawCamp);
- blood.forEach(drawBlood);
- houses.forEach(drawHouse);
- drawHideSpots();
- trees.forEach(drawTree);
- drawFireflies();
- drawPages();drawBatteries();drawExit();
- drawPlayer();
- drawFog();
- ctx.restore();
-
- // A iluminação escurece o mapa, mas o monstro é desenhado por cima.
- drawLighting();
- drawMonster();
-}
-
-/* INTERFACE E FINAL DE JOGO */
-function updateHUD(){
- $('staminaFill').style.width=player.stamina+'%';
- $('noiseFill').style.width=player.noise+'%';
- $('noiseFill').style.background=player.noise>65?'#bd4949':'#b6a16d';
- $('batteryFill').style.width=player.battery+'%';
- $('batteryText').textContent=Math.ceil(player.battery)+'%';
- $('batteryText').style.color=player.battery<20?'#d18a78':'#eee';
-
- if(player.hidden){
-  $('bottomHint').innerHTML='VOCÊ ESTÁ ESCONDIDO<br>APERTE E PARA SAIR';
- }else{
-  $('bottomHint').innerHTML=nearestHide()
-   ?'APERTE E PARA SE ESCONDER<br>FIQUE EM SILÊNCIO'
-   :'WASD: MOVER<br>SHIFT: CORRER<br>F: LANTERNA<br>E: INTERAGIR';
- }
-}
-function finish(victory){
- if(!running)return;
- running=false;dead=!victory;won=victory;
- $('overlay').classList.remove('hidden');
- $('logo').textContent=victory?'VOCÊ ESCAPOU':'VOCÊ FOI ENCONTRADO';
- $('subtitle').textContent=victory?'A NOITE AINDA NÃO ACABOU':'ELE SABIA ONDE VOCÊ ESTAVA';
- $('story').innerHTML=victory
-  ?'Você encontrou o caminho para fora.<br>Mas alguma coisa veio com você.<br><br><b>FIM DA EXPEDIÇÃO</b>'
-  :'A floresta ficou em silêncio.<br>Seus passos pararam.<br><br><b>O QUE VIVE AQUI NÃO DEIXA TESTEMUNHAS.</b>';
- $('start').textContent='TENTAR NOVAMENTE';
- $('instructions').textContent='Cada tentativa é diferente. Use o silêncio a seu favor.';
- if(victory)playTone(440,.7,.08,'sine');else scareSound();
-}
-
-function frame(now){
- requestAnimationFrame(frame);
- const dt=Math.min((now-lastTime)/1000||0,.04);
- lastTime=now;
-
- if(running&&!dead&&!won){
+function update(dt){
+  if(!running||gameOver)return;
   elapsed+=dt;
-  movePlayer(dt);
-  updateItems();
-  updateMonster(dt);
-  updateMessage(dt);
-  camera.x+=(player.x-camera.x)*Math.min(1,dt*7);
-  camera.y+=(player.y-camera.y)*Math.min(1,dt*7);
-  updateHUD();
+  messageTimer=Math.max(0,messageTimer-dt);
+  $("message").textContent=messageTimer>0?messageText:"";
+  warningAmount=Math.max(0,warningAmount-dt*1.4);
 
-  // Sons de ambiente espaçados, sem bloquear o navegador.
-  ambienceTimer-=dt;
-  if(ambienceTimer<=0&&audioReady){
-   ambienceTimer=3+Math.random()*5;
-   if(Math.random()<.65)playTone(65+Math.random()*100,.5+Math.random(),.018,'sine');
-   if(Math.random()<.25)playNoise(.35,.012);
+  const forward=(keys.KeyW||keys.ArrowUp||touch.up?1:0)-(keys.KeyS||keys.ArrowDown||touch.down?1:0);
+  const side=(keys.KeyD||keys.ArrowRight||touch.right?1:0)-(keys.KeyA||keys.ArrowLeft||touch.left?1:0);
+  let mx=side,my=forward;
+  const mag=Math.hypot(mx,my);
+  if(mag>0){mx/=mag;my/=mag;player.angle=Math.atan2(my,mx);}
+
+  const wantsRun=keys.ShiftLeft||keys.ShiftRight||touch.run;
+  const canRun=wantsRun&&mag>0&&!player.hidden&&player.stamina>=18&&player.stumble<=0;
+  const speed=canRun?205:115;
+
+  if(canRun)player.stamina=Math.max(0,player.stamina-35*dt);
+  else player.stamina=Math.min(100,player.stamina+19*dt);
+
+  if(player.stamina<=0&&wantsRun){
+    say("Sem fôlego! Você precisa descansar.",.6);
   }
- }
- ctx.clearRect(0,0,W,H);
- drawWorld();
+
+  if(player.stumble>0)player.stumble-=dt;
+  if(player.hidden){mx=0;my=0;}
+
+  if(mag>0){
+    const oldX=player.x,oldY=player.y;
+    moveEntity(player,mx*speed*dt,my*speed*dt,player.r);
+    if(player.x!==oldX||player.y!==oldY){
+      player.stepTimer-=dt;
+      if(player.stepTimer<=0){
+        footsteps();
+        player.stepTimer=canRun?.25:.43;
+        footprints.push({x:player.x,y:player.y,life:4});
+      }
+    }
+  }
+
+  // Buracos reduzem o ritmo e geram ruído.
+  let inHole=false;
+  for(const h of holes){
+    if(dist(player.x,player.y,h.x,h.y)<h.r+player.r){
+      inHole=true;break;
+    }
+  }
+  if(inHole&&player.stumble<=0){
+    player.stumble=.8;
+    player.noise=Math.min(100,player.noise+24);
+    say("Você tropeçou em um buraco!",1.2);
+    beep(95,.12,"triangle");
+  }
+
+  player.noise=Math.max(0,player.noise-15*dt);
+  if(canRun)player.noise=Math.min(100,player.noise+35*dt);
+  if(inHole)player.noise=Math.min(100,player.noise+5*dt);
+
+  if(flashOn){
+    player.battery=Math.max(0,player.battery-0.8*dt);
+    if(player.battery<=0){
+      flashOn=false;say("A lanterna descarregou.");
+      beep(140,.2);
+    }
+  }
+
+  // Detecção do monstro por visão e barulho.
+  const d=dist(monster.x,monster.y,player.x,player.y);
+  const sees=monsterCanSee();
+  const hears=d<Math.max(75,player.noise*4.3);
+  if(!player.hidden&&(sees||hears)){
+    monster.mode="chase";
+    monster.alert=3.5;
+    monster.seen=sees;
+    warningAmount=1;
+  }else if(monster.mode==="chase"){
+    monster.alert-=dt;
+    if(player.hidden||d>560||monster.alert<=0){
+      monster.mode="search";
+      monster.search=4.5;
+      monster.targetX=player.x+rand(-120,120);
+      monster.targetY=player.y+rand(-120,120);
+    }
+  }
+
+  if(monster.mode==="patrol"){
+    if(dist(monster.x,monster.y,monster.targetX,monster.targetY)<35){
+      pickPatrolTarget();
+    }
+    monster.angle=Math.atan2(monster.targetY-monster.y,monster.targetX-monster.x);
+    moveEntity(monster,Math.cos(monster.angle)*monster.speed*dt,Math.sin(monster.angle)*monster.speed*dt,monster.r);
+    if(audioOn&&audioCtx)chaseGain.gain.setTargetAtTime(.0,audioCtx.currentTime,.4);
+  }else if(monster.mode==="chase"){
+    monster.angle=Math.atan2(player.y-monster.y,player.x-monster.x);
+    // A perseguição também respeita os obstáculos.
+    const dx=Math.cos(monster.angle)*monster.speed*1.7*dt;
+    const dy=Math.sin(monster.angle)*monster.speed*1.7*dt;
+    const moved=moveEntity(monster,dx,dy,monster.r);
+    if(!moved){
+      // Tenta contornar o obstáculo.
+      const a=monster.angle+Math.PI/2;
+      moveEntity(monster,Math.cos(a)*monster.speed*dt,Math.sin(a)*monster.speed*dt,monster.r);
+    }
+    if(audioOn&&audioCtx)chaseGain.gain.setTargetAtTime(.07,audioCtx.currentTime,.3);
+    if(d<30&&!player.hidden){
+      player.health-=45*dt;
+      warningAmount=1;
+      if(player.health<=0)endGame(false);
+    }
+  }else if(monster.mode==="search"){
+    monster.search-=dt;
+    monster.angle=Math.atan2(monster.targetY-monster.y,monster.targetX-monster.x);
+    moveEntity(monster,Math.cos(monster.angle)*monster.speed*.8*dt,Math.sin(monster.angle)*monster.speed*.8*dt,monster.r);
+    if(monster.search<=0){
+      monster.mode="patrol";pickPatrolTarget();
+    }
+    if(audioOn&&audioCtx)chaseGain.gain.setTargetAtTime(.015,audioCtx.currentTime,.5);
+  }
+
+  // O monstro não encontra o jogador escondido.
+  if(player.hidden&&monster.mode==="chase"){
+    monster.mode="search";
+    monster.search=3;
+    monster.targetX=monster.x+rand(-80,80);
+    monster.targetY=monster.y+rand(-80,80);
+    monster.alert=0;
+  }
+
+  footprints=footprints.filter(f=>(f.life-=dt)>0);
+  for(const p of particles){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;}
+  particles=particles.filter(p=>p.life>0);
+
+  $("staminaFill").style.width=player.stamina+"%";
+  $("staminaText").textContent=Math.round(player.stamina)+"%";
+  $("batteryFill").style.width=player.battery+"%";
+  $("batteryText").textContent=Math.round(player.battery)+"%";
+  $("healthFill").style.width=player.health+"%";
+  $("healthText").textContent=Math.round(player.health)+"%";
+  $("pages").textContent="PÁGINAS: "+player.pages+"/6";
+  $("warning").style.opacity=warningAmount*(monster.mode==="chase"?1:.35);
+  $("lightBtn").textContent=flashOn?"LANTERNA ON":"LANTERNA OFF";
+  $("hideBtn").textContent=player.hidden?"SAIR":"ESCONDER";
+  $("runBtn").style.opacity=player.stamina<18?".45":"1";
+
+  const nearbyHide=hides.some(h=>dist(player.x,player.y,h.x,h.y)<h.r+35);
+  const nearbyPage=pages.some(p=>!p.taken&&dist(player.x,player.y,p.x,p.y)<36);
+  const nearbyBattery=batteries.some(b=>!b.taken&&dist(player.x,player.y,b.x,b.y)<32);
+  const nearExit=dist(player.x,player.y,exit.x,exit.y)<70;
+  $("hint").textContent=player.hidden?"E — SAIR DO ESCONDERIJO":
+    nearbyHide?"E — ESCONDER-SE":
+    nearbyPage?"E — PEGAR PÁGINA":
+    nearbyBattery?"E — PEGAR BATERIA":
+    nearExit?(doorUnlocked?"E — ESCAPAR":"SAÍDA TRANCADA"):"";
+  if(audioOn&&audioCtx&&windGain){
+    windGain.gain.setTargetAtTime(player.hidden?.006:.018,audioCtx.currentTime,.5);
+  }
 }
-requestAnimationFrame(frame);
+
+function drawWorld(){
+  ctx.fillStyle="#10140f";
+  ctx.fillRect(0,0,WORLD,WORLD);
+
+  // Textura sutil do chão.
+  ctx.fillStyle="#151a13";
+  for(let x=0;x<WORLD;x+=130){
+    for(let y=0;y<WORLD;y+=130){
+      const n=Math.sin(x*12.9898+y*78.233)*43758.5453;
+      if((n-Math.floor(n))>.55){
+        ctx.fillRect(x+((n*31)%50),y+((n*17)%50),2,2);
+      }
+    }
+  }
+
+  // Trilha irregular levando à saída.
+  ctx.lineCap="round";
+  ctx.strokeStyle="#25271e";
+  ctx.lineWidth=105;
+  ctx.beginPath();
+  ctx.moveTo(2500,2500);
+  ctx.bezierCurveTo(2900,2900,3200,3400,3700,3700);
+  ctx.bezierCurveTo(4100,3950,4400,4300,4700,4600);
+  ctx.stroke();
+  ctx.strokeStyle="#292b20";
+  ctx.lineWidth=3;
+  ctx.stroke();
+
+  for(const h of holes){
+    ctx.fillStyle="#080a08";
+    ctx.beginPath();ctx.ellipse(h.x,h.y,h.r*1.2,h.r*.8,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#353a2d";ctx.lineWidth=3;
+    ctx.beginPath();ctx.ellipse(h.x,h.y,h.r,h.r*.7,0,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle="#090a08";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(h.x-h.r*.4,h.y);ctx.lineTo(h.x+h.r*.4,h.y+2);ctx.stroke();
+  }
+
+  for(const b of blood){
+    ctx.fillStyle="rgba(88,8,13,.45)";
+    ctx.beginPath();ctx.ellipse(b.x,b.y,b.r*1.6,b.r*.8,rand(0,2),0,Math.PI*2);ctx.fill();
+  }
+
+  for(const h of houses){
+    ctx.fillStyle="#171815";
+    ctx.fillRect(h.x-h.w/2,h.y-h.h/2,h.w,h.h);
+    ctx.fillStyle="#24251f";
+    ctx.fillRect(h.x-h.w/2+5,h.y-h.h/2+5,h.w-10,h.h-10);
+    ctx.strokeStyle="#090a09";ctx.lineWidth=5;
+    ctx.strokeRect(h.x-h.w/2,h.y-h.h/2,h.w,h.h);
+    ctx.fillStyle="#070807";
+    ctx.fillRect(h.x-10,h.y+h.h/2-22,20,22);
+  }
+
+  for(const r of rocks){
+    ctx.fillStyle="#222720";
+    ctx.beginPath();ctx.ellipse(r.x,r.y,r.r,r.r*.75,.4,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#30372c";ctx.lineWidth=2;ctx.stroke();
+  }
+
+  for(const h of hides){
+    ctx.fillStyle="#20271b";
+    ctx.beginPath();ctx.ellipse(h.x,h.y,28,19,.2,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#39422d";ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle="#080a08";
+    ctx.beginPath();ctx.ellipse(h.x,h.y,13,9,.2,0,Math.PI*2);ctx.fill();
+  }
+
+  for(const p of pages){
+    if(p.taken)continue;
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.sin(elapsed+p.id)*.08);
+    ctx.shadowColor="#e8d9ac";ctx.shadowBlur=12;
+    ctx.fillStyle="#d5cba9";ctx.fillRect(-6,-8,12,16);
+    ctx.shadowBlur=0;ctx.fillStyle="#554e40";ctx.fillRect(-3,-3,6,1);
+    ctx.fillRect(-3,1,5,1);ctx.restore();
+  }
+  for(const b of batteries){
+    if(b.taken)continue;
+    ctx.fillStyle="#b7c77b";ctx.shadowColor="#b7c77b";ctx.shadowBlur=12;
+    ctx.fillRect(b.x-6,b.y-10,12,20);
+    ctx.shadowBlur=0;ctx.fillStyle="#28351c";ctx.fillRect(b.x-2,b.y-6,4,12);
+  }
+
+  // Saída.
+  ctx.fillStyle=doorUnlocked?"#3e2924":"#24231e";
+  ctx.beginPath();ctx.arc(exit.x,exit.y,exit.r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=doorUnlocked?"#9e493d":"#55584a";ctx.lineWidth=5;ctx.stroke();
+  ctx.fillStyle="#b6b6a0";ctx.font="bold 12px Arial";ctx.textAlign="center";
+  ctx.fillText(doorUnlocked?"SAÍDA":"TRANCADO",exit.x,exit.y+4);
+
+  // Árvores com sombra e tronco.
+  for(const t of trees){
+    ctx.fillStyle="#080b08";
+    ctx.beginPath();ctx.ellipse(t.x+7,t.y+10,t.r*1.2,t.r*.9,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#32271d";
+    ctx.fillRect(t.x-4,t.y-1,8,t.r+10);
+    ctx.fillStyle=t.tone>.5?"#1d2a1e":"#18231a";
+    ctx.beginPath();ctx.arc(t.x,t.y,t.r,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#2b3a29";ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle="#27372a";
+    ctx.beginPath();ctx.arc(t.x-5,t.y-5,t.r*.45,0,Math.PI*2);ctx.fill();
+  }
+
+  // Vagalumes.
+  for(const f of fireflies){
+    const alpha=.25+.55*(.5+.5*Math.sin(elapsed*2+f.phase));
+    ctx.fillStyle=`rgba(186,211,125,${alpha})`;
+    ctx.beginPath();ctx.arc(f.x,f.y,f.size,0,Math.PI*2);ctx.fill();
+  }
+
+  for(const f of footprints){
+    ctx.fillStyle=`rgba(3,4,3,${f.life/9})`;
+    ctx.beginPath();ctx.ellipse(f.x,f.y,4,7,0,0,Math.PI*2);ctx.fill();
+  }
+}
+
+function drawMonster(){
+  const x=monster.x,y=monster.y;
+  const chase=monster.mode==="chase";
+  const swing=Math.sin(elapsed*8)*4;
+  ctx.save();ctx.translate(x,y);ctx.rotate(monster.angle);
+
+  // Sombra.
+  ctx.fillStyle="#030403";
+  ctx.beginPath();ctx.ellipse(0,15,27,12,0,0,Math.PI*2);ctx.fill();
+
+  // Braços compridos.
+  ctx.strokeStyle="#6e6d65";ctx.lineWidth=7;ctx.lineCap="round";
+  ctx.beginPath();ctx.moveTo(-5,-4);ctx.lineTo(-18,12+swing);ctx.lineTo(-28,30+swing);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(18,12-swing);ctx.lineTo(27,29-swing);ctx.stroke();
+
+  // Pernas finas.
+  ctx.strokeStyle="#34352f";ctx.lineWidth=8;
+  ctx.beginPath();ctx.moveTo(-6,5);ctx.lineTo(-10,20-swing);ctx.lineTo(-13,32);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(6,5);ctx.lineTo(10,20+swing);ctx.lineTo(13,32);ctx.stroke();
+
+  // Corpo alongado.
+  ctx.fillStyle="#77766b";
+  ctx.beginPath();ctx.ellipse(0,0,12,21,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#4d4c45";
+  ctx.beginPath();ctx.ellipse(0,1,6,17,0,0,Math.PI*2);ctx.fill();
+
+  // Pescoço e cabeça pálida.
+  ctx.strokeStyle="#88877b";ctx.lineWidth=8;
+  ctx.beginPath();ctx.moveTo(0,-11);ctx.lineTo(0,-28);ctx.stroke();
+  ctx.fillStyle="#b1afa0";
+  ctx.beginPath();ctx.ellipse(0,-33,12,18,-.1,0,Math.PI*2);ctx.fill();
+
+  // Olhos e boca.
+  ctx.fillStyle="#090909";
+  ctx.beginPath();ctx.ellipse(-5,-36,3.3,5,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(5,-36,3.3,5,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(0,-25,4,7,0,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="#201d1a";ctx.lineWidth=1;
+  for(let i=0;i<4;i++){
+    ctx.beginPath();ctx.moveTo(-6+i*4,-27);ctx.lineTo(-5+i*4,-22);ctx.stroke();
+  }
+  if(chase){
+    ctx.fillStyle="rgba(140,0,0,.25)";
+    ctx.beginPath();ctx.arc(0,-33,20,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawPlayer(){
+  ctx.save();ctx.translate(player.x,player.y);
+  if(player.hidden){
+    ctx.fillStyle="#11180f";
+    ctx.beginPath();ctx.ellipse(0,0,17,11,0,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.fillStyle="#080a08";
+    ctx.beginPath();ctx.ellipse(3,7,13,9,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#555d57";
+    ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle="#c4c8bd";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(player.angle)*15,Math.sin(player.angle)*15);ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function render(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle="#070907";ctx.fillRect(0,0,W,H);
+
+  const camX=clamp(player.x-W/2,0,WORLD-W);
+  const camY=clamp(player.y-H/2,0,WORLD-H);
+  ctx.save();
+  ctx.translate(-camX,-camY);
+
+  drawWorld();
+  drawMonster();
+  drawPlayer();
+
+  // Lanterna e neblina.
+  const gradient=ctx.createRadialGradient(player.x,player.y,35,player.x,player.y,flashOn?360:120);
+  gradient.addColorStop(0,"rgba(0,0,0,0)");
+  gradient.addColorStop(.55,"rgba(0,0,0,.20)");
+  gradient.addColorStop(1,"rgba(0,0,0,.91)");
+  ctx.fillStyle=gradient;
+  ctx.fillRect(camX,camY,W,H);
+
+  if(flashOn){
+    ctx.save();
+    ctx.globalCompositeOperation="destination-out";
+    const beam=ctx.createRadialGradient(player.x,player.y,15,player.x,player.y,310);
+    beam.addColorStop(0,"rgba(0,0,0,.93)");
+    beam.addColorStop(.5,"rgba(0,0,0,.68)");
+    beam.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=beam;
+    ctx.beginPath();ctx.arc(player.x,player.y,310,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+
+    // Mancha de luz suave sobre o chão.
+    const light=ctx.createRadialGradient(player.x,player.y,5,player.x,player.y,270);
+    light.addColorStop(0,"rgba(190,195,165,.10)");
+    light.addColorStop(1,"rgba(190,195,165,0)");
+    ctx.fillStyle=light;
+    ctx.beginPath();ctx.arc(player.x,player.y,270,0,Math.PI*2);ctx.fill();
+  }
+
+  ctx.restore();
+
+  // Vinheta.
+  const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.15,W/2,H/2,Math.max(W,H)*.72);
+  v.addColorStop(0,"rgba(0,0,0,0)");
+  v.addColorStop(1,"rgba(0,0,0,.74)");
+  ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+
+  if(monster.mode==="chase"){
+    ctx.fillStyle=`rgba(100,0,0,${.08+.06*Math.sin(elapsed*9)})`;
+    ctx.fillRect(0,0,W,H);
+  }
+  if(player.health<45){
+    ctx.fillStyle=`rgba(120,0,0,${(45-player.health)/160})`;
+    ctx.fillRect(0,0,W,H);
+  }
+}
+
+function loop(now){
+  const dt=Math.min((now-lastTime)/1000||0,.035);
+  lastTime=now;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+// Teclado.
+addEventListener("keydown",e=>{
+  keys[e.code]=true;
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(e.code))e.preventDefault();
+  if(e.repeat)return;
+  if(e.code==="KeyF"){
+    if(player.battery>0){flashOn=!flashOn;beep(flashOn?500:220,.08);}
+    else say("Sem bateria.");
+  }
+  if(e.code==="KeyE")interact();
+});
+addEventListener("keyup",e=>keys[e.code]=false);
+addEventListener("blur",()=>{for(const k in keys)keys[k]=false;});
+
+// Botões para celular.
+function hold(id,prop){
+  const el=$(id);
+  const on=e=>{e.preventDefault();touch[prop]=true;};
+  const off=e=>{e.preventDefault();touch[prop]=false;};
+  el.addEventListener("pointerdown",on);
+  el.addEventListener("pointerup",off);
+  el.addEventListener("pointercancel",off);
+  el.addEventListener("pointerleave",off);
+}
+hold("up","up");hold("down","down");hold("left","left");hold("right","right");hold("runBtn","run");
+
+$("lightBtn").addEventListener("pointerdown",e=>{
+  e.preventDefault();
+  if(player.battery>0){flashOn=!flashOn;beep(flashOn?500:220,.08);}
+  else say("Sem bateria.");
+});
+$("hideBtn").addEventListener("pointerdown",e=>{e.preventDefault();interact();});
+$("useBtn").addEventListener("pointerdown",e=>{e.preventDefault();interact();});
+
+$("playBtn").addEventListener("click",()=>{
+  startAudio();
+  $("start").style.display="none";
+  $("endScreen").style.display="none";
+  resetWorld();
+  running=true;gameOver=false;
+  say("Encontre as seis páginas. Fique atento aos sons.",4);
+});
+$("againBtn").addEventListener("click",()=>{
+  $("endScreen").style.display="none";
+  $("start").style.display="flex";
+});
+
+})();
 </script>
 </body>
 </html>
