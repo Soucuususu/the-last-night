@@ -144,7 +144,7 @@ function resize(){
 addEventListener("resize",resize);
 resize();
 
-// Canvas separado para a máscara de escuridão da lanterna.
+
 const lightCanvas=document.createElement("canvas");
 const lightCtx=lightCanvas.getContext("2d");
 
@@ -179,7 +179,7 @@ const player={
 };
 
 const monster={
- x:2700,y:2390,r:15,angle:Math.PI,
+ x:2900,y:2900,r:15,angle:Math.PI,
  mode:"patrol",tx:3000,ty:2400,
  alert:0,search:0
 };
